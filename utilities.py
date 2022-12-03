@@ -8,9 +8,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import TruncatedSVD
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import  GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.compose import ColumnTransformer
 
@@ -184,15 +184,41 @@ def create_pipeline_object(
             ("text", text_transformer, text_features),
         ]
     )
+    est = []
+    if 'logistic' in classifiers_to_use:
+        est.append(('logistic', LogisticRegression()))
+
+    if 'svm' in classifiers_to_use:
+        est.append(('svm', SVC()))
+    
+    if 'random_forest' in classifiers_to_use:
+        est.append(('random_forest', RandomForestClassifier()))
+    
+    if 'knn' in classifiers_to_use:
+        est.append(('knn', KNeighborsClassifier()))
+    
+    if 'ada_boost' in classifiers_to_use:
+        est.append(('ada_boost',  AdaBoostClassifier()))
+
+
     ensemble = VotingClassifier(
-        estimators=[
-            ('logistic',  LogisticRegression()),
-            ("svm", SVC()),
-            ("random_forest", RandomForestClassifier()),
-            ('knn', KNeighborsClassifier())
-        ]
+        estimators=est 
     )
     ppl = Pipeline(
         steps=[("preprocessor", preprocessor), ("classifier", ensemble)]
     )
     return ppl
+
+
+def create_df(text):
+    df = pd.DataFrame()
+    df['tweet'] = [text]
+    df["topics"] = df.tweet.apply(extract_topics)
+    df["num_topics"] = df.tweet.apply(num_topics)
+    df["extracted_emojis"] = df.tweet.apply(extract_emojis)
+    df["num_emojis"] = df.tweet.apply(num_emojis)
+    df["length_of_tweet"] = df.tweet.apply(length_of_tweet)
+    df["num_of_slurrs"] = df.tweet.apply(num_of_slurrs)
+    df["emoji_score"] = df.tweet.apply(get_emoji_score)
+    df['tweet'] = df.tweet.apply(preprocess_tweet)
+    return df
