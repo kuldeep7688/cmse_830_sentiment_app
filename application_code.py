@@ -15,7 +15,7 @@ from sklearn.utils import estimator_html_repr
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_classification
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score, f1_score
 from pprint import pprint
 from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
 st.set_page_config(layout="wide")
@@ -386,15 +386,25 @@ st.write("""
 """)
 accuracy = accuracy_score(test_df['label'], test_df['predictions'])
 
-st.write("Accuracy ", accuracy.round(2))
-st.write("Precision: ", precision_score(
+model_accuracy = accuracy.round(2)
+model_precision = precision_score(
     test_df['label'], test_df['predictions'],
     labels=clf.classes_).round(2)
-)
-st.write("Recall: ", recall_score(
+
+model_recall = recall_score(
     test_df['label'], test_df['predictions'],
     labels=clf.classes_).round(2)
-)
+
+model_f1_score = f1_score(
+    test_df['label'], test_df['predictions'],
+    labels=clf.classes_).round(2)
+
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Accuracy", "{}",format(model_accuracy))
+col2.metric("Precision", "{}".format(model_precision))
+col3.metric("Recall", "{}".format(model_recall))
+col4.metric("F1 Score", "{}".format(model_f1_score))
+
 st.subheader("Confusion Matrix") 
 cm = confusion_matrix(test_df['label'], test_df['predictions'], labels=clf.classes_)
 print(cm)
@@ -410,7 +420,7 @@ st.pyplot()
 st.write("""
 ### Please go ahead and try your own Tweet below : 
 """)
-input_text = st.text_input('Tweet', 'I feel good today.')
+input_text = st.text_input('Tweet', 'We love this! Would you go? #talk #makememories #unplug #relax #iphone #smartphone #wifi #connect')
 st.write('The input tweet is : ', input_text)
 temp_df = create_df(input_text)
 prediction = list(clf.predict(temp_df))[0]
