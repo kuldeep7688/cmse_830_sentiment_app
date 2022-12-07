@@ -384,9 +384,7 @@ st.write('------')
 st.write("""
 #### The Results on the Test Set are: 
 """)
-accuracy = accuracy_score(test_df['label'], test_df['predictions'])
-
-model_accuracy = accuracy.round(2)
+model_accuracy = accuracy_score(test_df['label'], test_df['predictions']).round(2)
 model_precision = precision_score(
     test_df['label'], test_df['predictions'],
     labels=clf.classes_).round(2)
@@ -400,7 +398,7 @@ model_f1_score = f1_score(
     labels=clf.classes_).round(2)
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Accuracy", "{}",format(model_accuracy))
+col1.metric("Accuracy", "{}".format(model_accuracy))
 col2.metric("Precision", "{}".format(model_precision))
 col3.metric("Recall", "{}".format(model_recall))
 col4.metric("F1 Score", "{}".format(model_f1_score))
